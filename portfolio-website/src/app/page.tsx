@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef, useEffect } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { useRef, useEffect, useState } from "react"
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Github, Linkedin, Mail, ExternalLink, ArrowRight, Download } from "lucide-react"
@@ -42,36 +42,143 @@ const sfPro = localFont({
 export default function Portfolio() {
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
+  const [isHoveringLink, setIsHoveringLink] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [preloaderStage, setPreloaderStage] = useState(0)
+  const [showNav, setShowNav] = useState(false)
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   })
 
-  const { scrollYProgress: heroProgress } = useScroll({
+  const { scrollYProgress: heroScrollProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   })
 
-  // Fixed navigation effects
-  const navBgOpacity = useTransform(heroProgress, [0, 0.1], [0, 1])
-  const navBgBlur = useTransform(heroProgress, [0, 0.1], [0, 8])
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setShowNav(latest > 0.05)
+  })
+
+  useMotionValueEvent(heroScrollProgress, "change", (latest) => {
+    setScrollProgress(latest)
+  })
+
+  useEffect(() => {
+    document.body.style.cursor = 'none'
+    
+    const timer1 = setTimeout(() => setPreloaderStage(1), 300)
+    const timer2 = setTimeout(() => setPreloaderStage(2), 1000)
+    const timer3 = setTimeout(() => setPreloaderStage(3), 1500)
+    const timer4 = setTimeout(() => setPreloaderStage(4), 2000)
+    const timer5 = setTimeout(() => {
+      setIsLoading(false)
+      document.body.style.overflow = 'auto'
+    }, 2500)
+    
+    document.body.style.overflow = 'hidden'
+    
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+      clearTimeout(timer3)
+      clearTimeout(timer4)
+      clearTimeout(timer5)
+    }
+  }, [])
+
+  useEffect(() => {
+    let targetX = 0
+    let targetY = 0
+    let currentX = 0
+    let currentY = 0
+    let ease = 0.2
+    
+    const moveCursor = (e: MouseEvent) => {
+      targetX = e.clientX
+      targetY = e.clientY
+    }
+    
+    const handleLinkHover = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (target.closest('a, button, [data-cursor-hover]')) {
+        setIsHoveringLink(true)
+      } else {
+        setIsHoveringLink(false)
+      }
+    }
+    
+    const animateCursor = () => {
+      currentX += (targetX - currentX) * ease
+      currentY += (targetY - currentY) * ease
+      setCursorPosition({ x: currentX, y: currentY })
+      requestAnimationFrame(animateCursor)
+    }
+    
+    window.addEventListener('mousemove', moveCursor)
+    window.addEventListener('mouseover', handleLinkHover)
+    animateCursor()
+    
+    return () => {
+      window.removeEventListener('mousemove', moveCursor)
+      window.removeEventListener('mouseover', handleLinkHover)
+    }
+  }, [])
+
+  useEffect(() => {
+    let isWheel = false
+    let targetScroll = window.scrollY
+    let currentScroll = window.scrollY
+    let ease = 0.2
+    
+    const handleWheel = (e: WheelEvent) => {
+      if (isLoading) {
+        e.preventDefault()
+        return
+      }
+      isWheel = true
+      targetScroll += e.deltaY * 1.2
+      targetScroll = Math.max(0, Math.min(targetScroll, document.body.scrollHeight - window.innerHeight))
+      e.preventDefault()
+    }
+    
+    const animateScroll = () => {
+      if (Math.abs(targetScroll - currentScroll) > 0.5) {
+        currentScroll += (targetScroll - currentScroll) * ease
+        window.scrollTo(0, currentScroll)
+      } else if (isWheel) {
+        currentScroll = targetScroll
+        window.scrollTo(0, currentScroll)
+        isWheel = false
+      }
+      requestAnimationFrame(animateScroll)
+    }
+    
+    window.addEventListener('wheel', handleWheel, { passive: false })
+    animateScroll()
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel)
+    }
+  }, [isLoading])
+
+  const heroScale = useTransform(heroScrollProgress, [0, 1], [1, 3])
+  const heroTranslateZ = useTransform(heroScrollProgress, [0, 1], ["0px", "500px"])
+  const heroRotateX = useTransform(heroScrollProgress, [0, 1], ["0deg", "10deg"])
+  const heroTextOpacity = useTransform(heroScrollProgress, [0, 0.6], [1, 1])
+  const heroTextScale = useTransform(heroScrollProgress, [0, 1], [1, 2.5])
+  const heroTextY = useTransform(heroScrollProgress, [0, 1], ["0%", "20%"])
+  const heroBgScale = useTransform(heroScrollProgress, [0, 1], [1, 1.5])
+
+  const navBgOpacity = useTransform(scrollYProgress, [0.05, 0.1], [0, 1])
+  const navBgBlur = useTransform(scrollYProgress, [0.05, 0.1], [0, 12])
   const navBackdropFilter = useTransform(navBgBlur, (value) => `blur(${value}px)`)
 
-  // Enhanced animations
-  const heroY = useTransform(heroProgress, [0, 1], ["0%", "30%"])
-  const heroOpacity = useTransform(heroProgress, [0, .6, 1], [1, 0, 0])
-  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.3])
-  const heroTextScale = useTransform(heroProgress, [0, 1], [1, 0.95])
-  
-  // Parallax effects for project sections
-  const project1Y = useTransform(scrollYProgress, [0.2, 0.4], ["0%", "-10%"])
-  const project2Y = useTransform(scrollYProgress, [0.5, 0.7], ["0%", "-10%"])
-  const project3Y = useTransform(scrollYProgress, [0.8, 1], ["0%", "-10%"])
-  
-  // Apple-like sticky section headers
-  const sectionHeaderOpacity = useTransform(scrollYProgress, [0, 0.1, 0.2], [0, 0.5, 1])
-  const sectionHeaderY = useTransform(scrollYProgress, [0, 0.2], ["50px", "0px"])
+  const aboutOpacity = useTransform(scrollYProgress, [0.15, 0.25], [0, 1])
+  const aboutY = useTransform(scrollYProgress, [0.15, 0.25], ["50px", "0px"])
 
   const projects = [
     {
@@ -100,366 +207,408 @@ export default function Portfolio() {
     },
   ]
 
-  // Apple-like smooth scrolling behavior
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = "smooth"
-    return () => {
-      document.documentElement.style.scrollBehavior = "auto"
-    }
-  }, [])
-
   return (
-    <div 
-      ref={containerRef} 
-      className={`bg-black text-white relative overflow-hidden ${sfPro.variable} font-sans`}
-    >
-      {/* Navigation with Apple-like blur effect */}
-      <motion.nav 
-        style={{ 
-          opacity: navBgOpacity, 
-          backdropFilter: navBackdropFilter,
-          WebkitBackdropFilter: navBackdropFilter 
+    <>
+      <motion.div
+        className="fixed z-50 pointer-events-none mix-blend-difference"
+        animate={{
+          x: cursorPosition.x - (isHoveringLink ? 15 : 8),
+          y: cursorPosition.y - (isHoveringLink ? 15 : 8),
+          scale: isHoveringLink ? 1.5 : 1,
+          opacity: isLoading ? 0 : 1
         }}
-        className="fixed top-0 left-0 right-0 z-50 bg-black/80 border-b border-white/10"
+        transition={{ type: "spring", mass: 0.05, damping: 15 }}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ type: "spring", damping: 25 }}
-              className="text-xl font-medium"
-            >
-              Ved Patel
-            </motion.div>
-            <div className="hidden md:flex items-center space-x-8">
-              <motion.a 
-                href="#work" 
-                className="text-white/70 hover:text-white transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Work
-              </motion.a>
-              <motion.a 
-                href="#about" 
-                className="text-white/70 hover:text-white transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                About
-              </motion.a>
-              <motion.a 
-                href="#contact" 
-                className="text-white/70 hover:text-white transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Contact
-              </motion.a>
-            </div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button variant="outline" size="sm" className="border-white/20 text-black hover:bg-white hover:text-black">
-                <Download className="w-4 h-4 mr-2" />
-                Resume
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </motion.nav>
+        <div 
+          className={`rounded-full bg-white transition-all duration-150 ${isHoveringLink ? 'w-8 h-8' : 'w-4 h-4'}`}
+        />
+      </motion.div>
 
-      {/* Hero Section with Apple-like parallax */}
-      <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
-          className="text-center z-10 max-w-5xl mx-auto px-6"
-        >
+      <AnimatePresence>
+        {isLoading && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }} // Starts slightly smaller and invisible
-            animate={{ opacity: 1, scale: 1 }}    // Ends at full size and visible
-            transition={{ 
-              type: "spring", // Keeps the spring physics for a bouncier feel (optional)
-              damping: 20,    // Adjust damping/stiffness if keeping spring
-              stiffness: 100,
-              delay: 0.33,
+            initial={{ opacity: 1 }}
+            exit={{ 
+              opacity: 0,
+              transition: { 
+                duration: 0.8, 
+                ease: [0.22, 1, 0.36, 1],
+                filter: 'url(#noise) blur(10px)'
+              } 
             }}
-            className="mb-8"
+            className="fixed inset-0 z-50 bg-white flex flex-col"
           >
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
-              Ved Patel
-            </h1>
-            <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-8"></div>
-            <p className="text-xl md:text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
-              Computer Science Student @ UT Dallas '25
-            </p>
-          </motion.div>
+            <svg className="absolute opacity-0">
+              <filter id="noise">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+                <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0" />
+              </filter>
+            </svg>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-3 rounded-full">
-                View My Work
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-black hover:bg-white/10 px-8 py-3 rounded-full"
-              >
-                Get In Touch
-              </Button>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-
-        {/* Apple-like gradient background with animated particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black"></div>
-          
-          {/* Animated particles */}
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ 
-                x: `${Math.random() * 100 - 50}vw`,
-                y: `${Math.random() * 100 - 50}vh`,
-                opacity: 0
-              }}
+            <motion.div 
+              className="h-1/3 bg-black relative"
+              initial={{ x: "-100%" }}
               animate={{ 
-                x: `${Math.random() * 100 - 50}vw`,
-                y: `${Math.random() * 100 - 50}vh`,
-                opacity: 0.2
-              }}
-              transition={{
-                duration: 20 + Math.random() * 20,
-                repeat: Infinity,
-                repeatType: "reverse",
-                ease: "linear"
-              }}
-              className="absolute rounded-full bg-white"
-              style={{
-                width: `${1 + Math.random() * 3}px`,
-                height: `${1 + Math.random() * 3}px`,
+                x: preloaderStage >= 2 ? "0%" : "-100%",
+                transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] }
               }}
             />
-          ))}
-        </div>
-      </section>
-
-      {/* About Section with Apple-like reveal animation */}
-      <section id="about" className="py-32 px-6 relative">
-        {/* Sticky section header */}
-        <motion.div 
-          style={{ 
-            opacity: sectionHeaderOpacity, 
-            y: sectionHeaderY 
-          }}
-          className="sticky top-24 z-10 mb-16"
-        >
-          <h2 className="text-xs uppercase tracking-widest text-white/50">About</h2>
-          <div className="w-16 h-px bg-white/30 mt-2"></div>
-        </motion.div>
-        
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 100 }}
-              viewport={{ once: true, margin: "-100px" }}
+            
+            <motion.div 
+              className="h-1/3 bg-black relative"
+              initial={{ x: "100%" }}
+              animate={{ 
+                x: preloaderStage >= 2 ? "0%" : "100%",
+                transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] }
+              }}
             >
-              <h2 className="text-5xl md:text-6xl font-light mb-8 tracking-tight">
-                Driven by
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                  curiosity
-                </span>
-              </h2>
-              <p className="text-xl text-white/70 leading-relaxed mb-8">
-                I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
-              </p>
-              <div className="grid grid-cols-2 gap-8">
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
+              {preloaderStage >= 3 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="absolute inset-0 flex items-center justify-center"
                 >
-                  <h3 className="text-2xl font-light mb-2">Frontend</h3>
-                  <p className="text-white/60">React, Next.js, TypeScript</p>
+                  <h1 className="text-8xl font-bold tracking-tighter text-white">
+                    Ved Patel
+                  </h1>
                 </motion.div>
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
-                >
-                  <h3 className="text-2xl font-light mb-2">Backend</h3>
-                  <p className="text-white/60">Python, Node.js, PostgreSQL</p>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
-                >
-                  <h3 className="text-2xl font-light mb-2">AI/ML</h3>
-                  <p className="text-white/60">TensorFlow, PyTorch, OpenAI</p>
-                </motion.div>
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
-                >
-                  <h3 className="text-2xl font-light mb-2">Design</h3>
-                  <p className="text-white/60">Figma, Framer, Principle</p>
-                </motion.div>
-              </div>
+              )}
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 100 }}
-              viewport={{ once: true, margin: "-100px" }}
-              className="relative"
-            >
-              <div className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-3xl p-8 backdrop-blur-sm border border-white/10 overflow-hidden">
-                <Image
-                  src="/ved-patel.jpg"
-                  alt="Ved Patel"
-                  width={400}
-                  height={400}
-                  className="w-full h-full object-cover rounded-2xl"
-                />
-                {/* Glow effect */}
-                <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-                  boxShadow: "inset 0 0 60px rgba(255, 255, 255, 0.1)"
-                }}></div>
-              </div>
-              
-              {/* Floating tech badges */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg"
-              >
-                <span className="font-medium">UT Dallas '25</span>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="absolute -top-6 -right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-full shadow-lg"
-              >
-                <span className="font-medium">CS Honors</span>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Projects Section with Apple-like parallax */}
-      <section id="work" className="py-32 px-6 bg-gradient-to-b from-black to-gray-950 relative">
-        {/* Sticky section header */}
-        <motion.div 
-          style={{ 
-            opacity: sectionHeaderOpacity, 
-            y: sectionHeaderY 
-          }}
-          className="sticky top-24 z-10 mb-16"
-        >
-          <h2 className="text-xs uppercase tracking-widest text-white/50">Work</h2>
-          <div className="w-16 h-px bg-white/30 mt-2"></div>
-        </motion.div>
-        
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 100 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl md:text-6xl font-light mb-6 tracking-tight">
-              Selected <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Work</span>
-            </h2>
-            <p className="text-xl text-white/60 max-w-2xl mx-auto">
-              A collection of projects that showcase my passion for creating meaningful digital experiences
-            </p>
+            
+            <motion.div 
+              className="h-1/3 bg-black relative"
+              initial={{ x: "-100%" }}
+              animate={{ 
+                x: preloaderStage >= 2 ? "0%" : "-100%",
+                transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] }
+              }}
+            />
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="space-y-32">
-            {projects.map((project, index) => (
+      <div 
+        ref={containerRef} 
+        className={`bg-black text-white relative overflow-hidden ${sfPro.variable} font-sans`}
+      >
+        <motion.nav 
+          style={{ 
+            opacity: navBgOpacity, 
+            backdropFilter: navBackdropFilter,
+            WebkitBackdropFilter: navBackdropFilter,
+            pointerEvents: showNav ? 'auto' : 'none'
+          }}
+          className="fixed top-0 left-0 right-0 z-40 bg-black/50 border-b border-white/10 transition-opacity"
+        >
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
               <motion.div
-                key={project.title}
-                initial={{ opacity: 0, y: 100 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ type: "spring", damping: 25, stiffness: 100, delay: index * 0.2 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="group relative"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ type: "spring", damping: 25 }}
+                className="text-xl font-medium"
               >
-                <div
-                  className={`grid lg:grid-cols-2 gap-16 items-center ${index % 2 === 1 ? "lg:grid-flow-col-dense" : ""}`}
+                Ved Patel
+              </motion.div>
+              <div className="hidden md:flex items-center space-x-8">
+                <motion.a 
+                  href="#work" 
+                  className="text-white/70 hover:text-white transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-cursor-hover
                 >
-                  <div className={`${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
-                    <div className="flex items-center gap-4 mb-6">
-                      <Badge variant="outline" className="border-white/20 text-white/60 bg-transparent">
-                        {project.category}
-                      </Badge>
-                      <span className="text-white/40">{project.year}</span>
+                  Work
+                </motion.a>
+                <motion.a 
+                  href="#about" 
+                  className="text-white/70 hover:text-white transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-cursor-hover
+                >
+                  About
+                </motion.a>
+                <motion.a 
+                  href="#contact" 
+                  className="text-white/70 hover:text-white transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-cursor-hover
+                >
+                  Contact
+                </motion.a>
+              </div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                data-cursor-hover
+              >
+                <Button variant="outline" size="sm" className="border-white/20 text-black hover:bg-white hover:text-black">
+                  <Download className="w-4 h-4 mr-2" />
+                  Resume
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+        </motion.nav>
+
+        <section ref={heroRef} className="relative h-[200vh] flex items-center justify-center overflow-hidden">
+          <motion.div
+            style={{
+              scale: heroBgScale,
+            }}
+            className="absolute inset-0 bg-gradient-to-b from-blue-900 via-blue-800 to-purple-900"
+          />
+
+          <motion.div
+            style={{
+              scale: heroScale,
+              translateZ: heroTranslateZ,
+              rotateX: heroRotateX,
+              transformStyle: 'preserve-3d',
+              perspective: '1000px'
+            }}
+            className="w-full h-full absolute inset-0 flex items-center justify-center"
+          />
+
+          {/* Fixed Center Content */}
+          <motion.div 
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 max-w-5xl w-full px-6 text-center"
+            style={{
+              opacity: heroTextOpacity,
+              scale: heroTextScale,
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ 
+                type: "spring",
+                damping: 20,
+                stiffness: 100,
+                delay: 0.33,
+              }}
+              className="mb-8"
+            >
+              <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-6">
+                Ved Patel
+              </h1>
+              <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-8"></div>
+              <p className="text-xl md:text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
+                Computer Science Student @ UT Dallas '25
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.8 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                data-cursor-hover
+              >
+                <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-3 rounded-full">
+                  View My Work
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                data-cursor-hover
+              >
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-black hover:bg-white/10 px-8 py-3 rounded-full"
+                >
+                  Get In Touch
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        <motion.section 
+          id="about" 
+          className="py-32 px-6 relative"
+          style={{
+            opacity: aboutOpacity,
+            y: aboutY
+          }}
+        >
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 100 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                <h2 className="text-5xl md:text-6xl font-light mb-8 tracking-tight">
+                  Driven by
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                    curiosity
+                  </span>
+                </h2>
+                <p className="text-xl text-white/70 leading-relaxed mb-8">
+                  I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
+                </p>
+                <div className="grid grid-cols-2 gap-8">
+                  <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
+                    data-cursor-hover
+                  >
+                    <h3 className="text-2xl font-light mb-2">Frontend</h3>
+                    <p className="text-white/60">React, Next.js, TypeScript</p>
+                  </motion.div>
+                  <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
+                    data-cursor-hover
+                  >
+                    <h3 className="text-2xl font-light mb-2">Backend</h3>
+                    <p className="text-white/60">Python, Node.js, PostgreSQL</p>
+                  </motion.div>
+                  <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
+                    data-cursor-hover
+                  >
+                    <h3 className="text-2xl font-light mb-2">AI/ML</h3>
+                    <p className="text-white/60">TensorFlow, PyTorch, OpenAI</p>
+                  </motion.div>
+                  <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
+                    data-cursor-hover
+                  >
+                    <h3 className="text-2xl font-light mb-2">Design</h3>
+                    <p className="text-white/60">Figma, Framer, Principle</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 100 }}
+                viewport={{ once: true, margin: "-100px" }}
+                className="relative"
+              >
+                <div className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-3xl p-8 backdrop-blur-sm border border-white/10 overflow-hidden">
+                  <Image
+                    src="/ved-patel.jpg"
+                    alt="Ved Patel"
+                    width={400}
+                    height={400}
+                    className="w-full h-full object-cover rounded-2xl"
+                  />
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
+                    boxShadow: "inset 0 0 60px rgba(255, 255, 255, 0.1)"
+                  }}></div>
+                </div>
+                
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg"
+                >
+                  <span className="font-medium">UT Dallas '25</span>
+                </motion.div>
+                
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="absolute -top-6 -right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-full shadow-lg"
+                >
+                  <span className="font-medium">CS Honors</span>
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        </motion.section>
+
+        <section id="work" className="py-32 px-6 bg-gradient-to-b from-black to-gray-950 relative">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 100 }}
+              viewport={{ once: true }}
+              className="text-center mb-20"
+            >
+              <h2 className="text-5xl md:text-6xl font-light mb-6 tracking-tight">
+                Selected <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Work</span>
+              </h2>
+              <p className="text-xl text-white/60 max-w-2xl mx-auto">
+                A collection of projects that showcase my passion for creating meaningful digital experiences
+              </p>
+            </motion.div>
+
+            <div className="space-y-32">
+              {projects.map((project, index) => (
+                <motion.div
+                  key={project.title}
+                  initial={{ opacity: 0, y: 100 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 100, delay: index * 0.2 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  className="group relative"
+                >
+                  <div
+                    className={`grid lg:grid-cols-2 gap-16 items-center ${index % 2 === 1 ? "lg:grid-flow-col-dense" : ""}`}
+                  >
+                    <div className={`${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
+                      <div className="flex items-center gap-4 mb-6">
+                        <Badge variant="outline" className="border-white/20 text-white/60 bg-transparent">
+                          {project.category}
+                        </Badge>
+                        <span className="text-white/40">{project.year}</span>
+                      </div>
+                      <h3 className="text-4xl md:text-5xl font-light mb-6 tracking-tight group-hover:text-white/80 transition-colors">
+                        {project.title}
+                      </h3>
+                      <p className="text-lg text-white/70 leading-relaxed mb-8">{project.description}</p>
+                      <div className="flex flex-wrap gap-3 mb-8">
+                        {project.tech.map((tech) => (
+                          <motion.span
+                            key={tech}
+                            whileHover={{ scale: 1.05 }}
+                            className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm text-white/60"
+                            data-cursor-hover
+                          >
+                            {tech}
+                          </motion.span>
+                        ))}
+                      </div>
+                      <div className="flex gap-4">
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} data-cursor-hover>
+                          <Button
+                            variant="outline"
+                            className="border-white/20 text-white hover:bg-white hover:text-black rounded-full"
+                          >
+                            <Github className="w-4 h-4 mr-2" />
+                            View Code
+                          </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} data-cursor-hover>
+                          <Button className="bg-white text-black hover:bg-white/90 rounded-full">
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Live Demo
+                          </Button>
+                        </motion.div>
+                      </div>
                     </div>
-                    <h3 className="text-4xl md:text-5xl font-light mb-6 tracking-tight group-hover:text-white/80 transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-lg text-white/70 leading-relaxed mb-8">{project.description}</p>
-                    <div className="flex flex-wrap gap-3 mb-8">
-                      {project.tech.map((tech) => (
-                        <motion.span
-                          key={tech}
-                          whileHover={{ scale: 1.05 }}
-                          className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm text-white/60"
-                        >
-                          {tech}
-                        </motion.span>
-                      ))}
-                    </div>
-                    <div className="flex gap-4">
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button
-                          variant="outline"
-                          className="border-white/20 text-white hover:bg-white hover:text-black rounded-full"
-                        >
-                          <Github className="w-4 h-4 mr-2" />
-                          View Code
-                        </Button>
-                      </motion.div>
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button className="bg-white text-black hover:bg-white/90 rounded-full">
-                          <ExternalLink className="w-4 h-4 mr-2" />
-                          Live Demo
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </div>
-                  <div className={`${index % 2 === 1 ? "lg:col-start-1" : ""}`}>
-                    <motion.div 
-                      style={{ 
-                        y: index === 0 ? project1Y : 
-                           index === 1 ? project2Y : 
-                           project3Y 
-                      }}
-                      className="relative"
-                    >
+                    <div className={`${index % 2 === 1 ? "lg:col-start-1" : ""}`}>
                       <div className="aspect-[4/3] bg-gradient-to-br from-white/10 to-white/5 rounded-3xl overflow-hidden border border-white/10 relative">
                         <motion.div
                           whileHover={{ scale: 1.1 }}
@@ -474,158 +623,143 @@ export default function Portfolio() {
                             className="w-full h-full object-cover"
                           />
                         </motion.div>
-                        {/* Glow effect */}
                         <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
                           boxShadow: "inset 0 0 80px rgba(255, 255, 255, 0.05)"
                         }}></div>
-                        {/* Reflection effect */}
                         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent"></div>
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Apple-like background number */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 0.02 }}
-                  className="absolute -z-10 text-[20vw] font-bold tracking-tighter"
-                  style={{
-                    top: "50%",
-                    left: index % 2 === 0 ? "70%" : "10%",
-                    transform: "translate(-50%, -50%)",
-                    WebkitTextStroke: "1px white"
-                  }}
-                >
-                  {index + 1}
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section with Apple-like reveal */}
-      <section id="contact" className="py-32 px-6 relative">
-        {/* Sticky section header */}
-        <motion.div 
-          style={{ 
-            opacity: sectionHeaderOpacity, 
-            y: sectionHeaderY 
-          }}
-          className="sticky top-24 z-10 mb-16"
-        >
-          <h2 className="text-xs uppercase tracking-widest text-white/50">Contact</h2>
-          <div className="w-16 h-px bg-white/30 mt-2"></div>
-        </motion.div>
-        
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 100 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-5xl md:text-6xl font-light mb-8 tracking-tight">
-              Let's create something
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                extraordinary
-              </span>
-            </h2>
-            <p className="text-xl text-white/70 mb-12 leading-relaxed max-w-2xl mx-auto">
-              I'm always excited to collaborate on innovative projects and connect with fellow creators, researchers,
-              and visionaries.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-4 rounded-full text-lg">
-                  <Mail className="w-5 h-5 mr-3" />
-                  ved.patel@utdallas.edu
-                </Button>
-              </motion.div>
-              <div className="flex gap-4">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10 rounded-full p-4"
+                  
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 0.02 }}
+                    className="absolute -z-10 text-[20vw] font-bold tracking-tighter"
+                    style={{
+                      top: "50%",
+                      left: index % 2 === 0 ? "70%" : "10%",
+                      transform: "translate(-50%, -50%)",
+                      WebkitTextStroke: "1px white"
+                    }}
                   >
-                    <Github className="w-5 h-5" />
-                  </Button>
+                    {index + 1}
+                  </motion.div>
                 </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10 rounded-full p-4"
-                  >
-                    <Linkedin className="w-5 h-5" />
-                  </Button>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-        
-        {/* Floating contact elements */}
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="absolute bottom-10 left-10 bg-white/5 border border-white/10 rounded-full p-4 backdrop-blur-sm"
-        >
-          <Mail className="w-6 h-6 text-white/80" />
-        </motion.div>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="absolute top-20 right-20 bg-white/5 border border-white/10 rounded-full p-4 backdrop-blur-sm"
-        >
-          <Linkedin className="w-6 h-6 text-white/80" />
-        </motion.div>
-      </section>
-
-      {/* Footer with Apple-like subtlety */}
-      <footer className="py-12 px-6 border-t border-white/10 relative overflow-hidden">
-        {/* Animated gradient background */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.03 }}
-          className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"
-        />
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white/40 mb-4 md:mb-0">
-              © 2024 Ved Patel. <span className="hidden sm:inline">Crafted with passion and precision.</span>
-            </p>
-            <div className="flex items-center gap-6">
-              {["Privacy", "Terms", "Accessibility"].map((item) => (
-                <motion.a 
-                  key={item}
-                  href="#" 
-                  className="text-white/40 hover:text-white transition-colors"
-                  whileHover={{ y: -2 }}
-                >
-                  {item}
-                </motion.a>
               ))}
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+
+        <section id="contact" className="py-32 px-6 relative">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 100 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-5xl md:text-6xl font-light mb-8 tracking-tight">
+                Let's create something
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                  extraordinary
+                </span>
+              </h2>
+              <p className="text-xl text-white/70 mb-12 leading-relaxed max-w-2xl mx-auto">
+                I'm always excited to collaborate on innovative projects and connect with fellow creators, researchers,
+                and visionaries.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-cursor-hover
+                >
+                  <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-4 rounded-full text-lg">
+                    <Mail className="w-5 h-5 mr-3" />
+                    ved.patel@utdallas.edu
+                  </Button>
+                </motion.div>
+                <div className="flex gap-4">
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    data-cursor-hover
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10 rounded-full p-4"
+                    >
+                      <Github className="w-5 h-5" />
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    data-cursor-hover
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10 rounded-full p-4"
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="absolute bottom-10 left-10 bg-white/5 border border-white/10 rounded-full p-4 backdrop-blur-sm"
+          >
+            <Mail className="w-6 h-6 text-white/80" />
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="absolute top-20 right-20 bg-white/5 border border-white/10 rounded-full p-4 backdrop-blur-sm"
+          >
+            <Linkedin className="w-6 h-6 text-white/80" />
+          </motion.div>
+        </section>
+
+        <footer className="py-12 px-6 border-t border-white/10 relative overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 0.03 }}
+            className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"
+          />
+          
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-white/40 mb-4 md:mb-0">
+                © 2024 Ved Patel. <span className="hidden sm:inline">Crafted with passion and precision.</span>
+              </p>
+              <div className="flex items-center gap-6">
+                {["Privacy", "Terms", "Accessibility"].map((item) => (
+                  <motion.a 
+                    key={item}
+                    href="#" 
+                    className="text-white/40 hover:text-white transition-colors"
+                    whileHover={{ y: -2 }}
+                    data-cursor-hover
+                  >
+                    {item}
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
   )
 }
