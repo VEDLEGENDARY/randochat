@@ -60,8 +60,8 @@ export default function Portfolio() {
 
   // Enhanced animations
   const heroY = useTransform(heroProgress, [0, 1], ["0%", "30%"])
-  const heroOpacity = useTransform(heroProgress, [0, 0.7, 1], [1, 0.5, 0])
-  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.2])
+  const heroOpacity = useTransform(heroProgress, [0, .6, 1], [1, 0, 0])
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.3])
   const heroTextScale = useTransform(heroProgress, [0, 1], [1, 0.95])
   
   // Parallax effects for project sections
@@ -162,7 +162,7 @@ export default function Portfolio() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white hover:text-black">
+              <Button variant="outline" size="sm" className="border-white/20 text-black hover:bg-white hover:text-black">
                 <Download className="w-4 h-4 mr-2" />
                 Resume
               </Button>
@@ -178,10 +178,14 @@ export default function Portfolio() {
           className="text-center z-10 max-w-5xl mx-auto px-6"
         >
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.2 }}
-            style={{ scale: heroTextScale }}
+            initial={{ opacity: 0, scale: 0.95 }} // Starts slightly smaller and invisible
+            animate={{ opacity: 1, scale: 1 }}    // Ends at full size and visible
+            transition={{ 
+              type: "spring", // Keeps the spring physics for a bouncier feel (optional)
+              damping: 20,    // Adjust damping/stiffness if keeping spring
+              stiffness: 100,
+              delay: 0.33,
+            }}
             className="mb-8"
           >
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
@@ -215,7 +219,7 @@ export default function Portfolio() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-3 rounded-full"
+                className="border-white/30 text-black hover:bg-white/10 px-8 py-3 rounded-full"
               >
                 Get In Touch
               </Button>
