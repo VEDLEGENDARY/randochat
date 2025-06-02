@@ -56,8 +56,7 @@ module.exports = {
         full: "9999px",
       },
       fontFamily: {
-        sans: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
-        display: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
+        sans: ['var(--font-sf-pro)', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       fontSize: {
         'display-2xl': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.02em' }],

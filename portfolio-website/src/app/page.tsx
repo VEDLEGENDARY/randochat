@@ -6,6 +6,38 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Github, Linkedin, Mail, ExternalLink, ArrowRight, Download } from "lucide-react"
 import Image from "next/image"
+import localFont from 'next/font/local'
+
+const sfPro = localFont({
+  src: [
+    {
+      path: '../public/fonts/SF-Pro-Display-Regular.otf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/SF-Pro-Display-Medium.otf',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/SF-Pro-Display-Semibold.otf',
+      weight: '600',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/SF-Pro-Display-Bold.otf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/SF-Pro-Display-Light.otf',
+      weight: '300',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-sf-pro',
+})
 
 export default function Portfolio() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -46,7 +78,7 @@ export default function Portfolio() {
       title: "Neural Network Visualizer",
       description: "An interactive platform that brings machine learning to life through real-time visualization of neural network architectures and training processes.",
       tech: ["React", "D3.js", "Python", "TensorFlow"],
-      image: "/placeholder.svg",
+      image: "/nn-visualizer.jpg",
       year: "2024",
       category: "Machine Learning",
     },
@@ -54,7 +86,7 @@ export default function Portfolio() {
       title: "Campus Connect",
       description: "A comprehensive social platform designed specifically for university students to discover events, form study groups, and build meaningful connections.",
       tech: ["Next.js", "PostgreSQL", "Prisma", "Tailwind"],
-      image: "/placeholder.svg",
+      image: "/campus-connect.jpg",
       year: "2024",
       category: "Full-Stack",
     },
@@ -62,7 +94,7 @@ export default function Portfolio() {
       title: "StudyMind AI",
       description: "An intelligent study companion that adapts to individual learning patterns and provides personalized recommendations for optimal academic performance.",
       tech: ["Python", "FastAPI", "OpenAI", "React"],
-      image: "/placeholder.svg",
+      image: "/studymind-ai.jpg",
       year: "2023",
       category: "AI/ML",
     },
@@ -77,7 +109,10 @@ export default function Portfolio() {
   }, [])
 
   return (
-    <div ref={containerRef} className="bg-black text-white relative overflow-hidden">
+    <div 
+      ref={containerRef} 
+      className={`bg-black text-white relative overflow-hidden ${sfPro.variable} font-sans`}
+    >
       {/* Navigation with Apple-like blur effect */}
       <motion.nav 
         style={{ 
@@ -95,7 +130,7 @@ export default function Portfolio() {
               transition={{ type: "spring", damping: 25 }}
               className="text-xl font-medium"
             >
-              Alex Chen
+              Ved Patel
             </motion.div>
             <div className="hidden md:flex items-center space-x-8">
               <motion.a 
@@ -150,11 +185,11 @@ export default function Portfolio() {
             className="mb-8"
           >
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
-              Alex Chen
+              Ved Patel
             </h1>
             <div className="w-24 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-8"></div>
             <p className="text-xl md:text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
-              Computer Science Student crafting digital experiences that bridge innovation and human connection
+              Computer Science Student @ UT Dallas '25
             </p>
           </motion.div>
 
@@ -252,9 +287,7 @@ export default function Portfolio() {
                 </span>
               </h2>
               <p className="text-xl text-white/70 leading-relaxed mb-8">
-                I'm a Computer Science student at UC Berkeley, passionate about creating technology that makes a
-                difference. My work spans from machine learning research to full-stack development, always with a focus
-                on user experience and innovation.
+                I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
               </p>
               <div className="grid grid-cols-2 gap-8">
                 <motion.div 
@@ -296,8 +329,8 @@ export default function Portfolio() {
             >
               <div className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-3xl p-8 backdrop-blur-sm border border-white/10 overflow-hidden">
                 <Image
-                  src="/placeholder.svg"
-                  alt="Alex Chen"
+                  src="/ved-patel.jpg"
+                  alt="Ved Patel"
                   width={400}
                   height={400}
                   className="w-full h-full object-cover rounded-2xl"
@@ -315,7 +348,7 @@ export default function Portfolio() {
                 transition={{ delay: 0.4 }}
                 className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg"
               >
-                <span className="font-medium">5+ Years Experience</span>
+                <span className="font-medium">UT Dallas '25</span>
               </motion.div>
               
               <motion.div 
@@ -324,7 +357,7 @@ export default function Portfolio() {
                 transition={{ delay: 0.6 }}
                 className="absolute -top-6 -right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-full shadow-lg"
               >
-                <span className="font-medium">Full-Stack</span>
+                <span className="font-medium">CS Honors</span>
               </motion.div>
             </motion.div>
           </div>
@@ -421,16 +454,22 @@ export default function Portfolio() {
                            index === 1 ? project2Y : 
                            project3Y 
                       }}
-                      className="relative group-hover:scale-[1.02] transition-transform duration-700"
+                      className="relative"
                     >
                       <div className="aspect-[4/3] bg-gradient-to-br from-white/10 to-white/5 rounded-3xl overflow-hidden border border-white/10 relative">
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          width={800}
-                          height={600}
-                          className="w-full h-full object-cover"
-                        />
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          className="w-full h-full"
+                        >
+                          <Image
+                            src={project.image}
+                            alt={project.title}
+                            width={800}
+                            height={600}
+                            className="w-full h-full object-cover"
+                          />
+                        </motion.div>
                         {/* Glow effect */}
                         <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
                           boxShadow: "inset 0 0 80px rgba(255, 255, 255, 0.05)"
@@ -501,7 +540,7 @@ export default function Portfolio() {
               >
                 <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-4 rounded-full text-lg">
                   <Mail className="w-5 h-5 mr-3" />
-                  alex.chen@berkeley.edu
+                  ved.patel@utdallas.edu
                 </Button>
               </motion.div>
               <div className="flex gap-4">
@@ -563,7 +602,25 @@ export default function Portfolio() {
           className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"
         />
         
-      
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-white/40 mb-4 md:mb-0">
+              © 2024 Ved Patel. <span className="hidden sm:inline">Crafted with passion and precision.</span>
+            </p>
+            <div className="flex items-center gap-6">
+              {["Privacy", "Terms", "Accessibility"].map((item) => (
+                <motion.a 
+                  key={item}
+                  href="#" 
+                  className="text-white/40 hover:text-white transition-colors"
+                  whileHover={{ y: -2 }}
+                >
+                  {item}
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   )
