@@ -11,27 +11,27 @@ import localFont from 'next/font/local'
 const sfPro = localFont({
   src: [
     {
-      path: '../public/fonts/SF-Pro-Display-Regular.otf',
+      path: '../../public/fonts/SF-Pro-Display-Regular.otf',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../public/fonts/SF-Pro-Display-Medium.otf',
+      path: '../../public/fonts/SF-Pro-Display-Medium.otf',
       weight: '500',
       style: 'normal',
     },
     {
-      path: '../public/fonts/SF-Pro-Display-Semibold.otf',
+      path: '../../public/fonts/SF-Pro-Display-Semibold.otf',
       weight: '600',
       style: 'normal',
     },
     {
-      path: '../public/fonts/SF-Pro-Display-Bold.otf',
+      path: '../../public/fonts/SF-Pro-Display-Bold.otf',
       weight: '700',
       style: 'normal',
     },
     {
-      path: '../public/fonts/SF-Pro-Display-Light.otf',
+      path: '../../public/fonts/SF-Pro-Display-Light.otf',
       weight: '300',
       style: 'normal',
     },
@@ -187,7 +187,7 @@ export default function Portfolio() {
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
               Ved Patel
             </h1>
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-8"></div>
+            <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-8"></div>
             <p className="text-xl md:text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
               Computer Science Student @ UT Dallas '25
             </p>
