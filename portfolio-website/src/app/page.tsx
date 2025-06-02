@@ -563,25 +563,7 @@ export default function Portfolio() {
           className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"
         />
         
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white/40 mb-4 md:mb-0">
-              © 2024 Alex Chen. <span className="hidden sm:inline">Crafted with passion and precision.</span>
-            </p>
-            <div className="flex items-center gap-6">
-              {["Privacy", "Terms", "Accessibility"].map((item) => (
-                <motion.a 
-                  key={item}
-                  href="#" 
-                  className="text-white/40 hover:text-white transition-colors"
-                  whileHover={{ y: -2 }}
-                >
-                  {item}
-                </motion.a>
-              ))}
-            </div>
-          </div>
-        </div>
+      
       </footer>
     </div>
   )
