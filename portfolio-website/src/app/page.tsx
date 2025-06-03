@@ -60,8 +60,8 @@ export default function Portfolio() {
   })
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    setShowNav(latest > 0.05)
-  })
+    setShowNav(latest > NAV_SCROLL_THRESHOLD);
+  });
 
   useMotionValueEvent(heroScrollProgress, "change", (latest) => {
     setScrollProgress(latest)
@@ -172,8 +172,9 @@ export default function Portfolio() {
   const heroTextY = useTransform(heroScrollProgress, [0, 1], ["0%", "20%"])
   const heroBgScale = useTransform(heroScrollProgress, [0, 1], [1, 1.5])
 
-  const navBgOpacity = useTransform(scrollYProgress, [.01, .06], [0, 1])
-  const navBgBlur = useTransform(scrollYProgress, [0.05, 0.1], [0, 12])
+  const NAV_SCROLL_THRESHOLD = 0.001;
+  const navBgOpacity = useTransform(scrollYProgress, [0, .005], [0, 1])
+  const navBgBlur = useTransform(scrollYProgress, [0, 0.005], [0, 12])
   const navBackdropFilter = useTransform(navBgBlur, (value) => `blur(${value}px)`)
 
   const aboutOpacity = useTransform(scrollYProgress, [0.15, 0.25], [0, 1])
@@ -244,16 +245,16 @@ export default function Portfolio() {
             </svg>
 
             <motion.div 
-              className="h-1/3 bg-blue-200 relative"
+              className="h-1/3 bg-[#e87500] relative"
               initial={{ x: "-100%" }}
               animate={{ 
                 x: preloaderStage >= 2 ? "0%" : "-100%",
-                transition: { duration:.8, ease: [0.65, 0, 0.35, 1] }
+                transition: { duration:.4, ease: [0.65, 0, 0.35, 1] }
               }}
             />
             
             <motion.div 
-              className="h-1/3 bg-blue-300 relative"
+              className="h-1/3 bg-[#975410] relative"
               initial={{ x: "100%" }}
               animate={{ 
                 x: preloaderStage >= 2 ? "0%" : "100%",
@@ -263,11 +264,11 @@ export default function Portfolio() {
             </motion.div>
             
             <motion.div 
-              className="h-1/3 bg-blue-400 relative"
+              className="h-1/3 bg-[#091a2d] relative"
               initial={{ x: "-100%" }}
               animate={{ 
                 x: preloaderStage >= 2 ? "0%" : "-100%",
-                transition: { duration: 0.4, ease: [0.65, 0, 0.35, 1] }
+                transition: { duration: .8, ease: [0.65, 0, 0.35, 1] }
               }}
             />
           </motion.div>
