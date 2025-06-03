@@ -76,9 +76,8 @@ export default function Portfolio() {
     const timer4 = setTimeout(() => setPreloaderStage(4), 2000)
     const timer5 = setTimeout(() => {
       setIsLoading(false)
+      document.body.style.overflow = 'auto'
     }, 2500)
-    
-    document.body.style.overflow = 'hidden'
     
     return () => {
       clearTimeout(timer1)
@@ -127,59 +126,6 @@ export default function Portfolio() {
     }
   }, [])
 
-  useEffect(() => {
-    let isWheel = false;
-    let targetScroll = window.scrollY;
-    let currentScroll = window.scrollY;
-    const ease = 0.2;
-
-    const handleWheel = (e: WheelEvent) => {
-      if (isLoading) {
-        e.preventDefault();
-        return;
-      }
-      isWheel = true;
-      targetScroll += e.deltaY * 1.2;
-      targetScroll = Math.max(0, Math.min(targetScroll, document.body.scrollHeight - window.innerHeight));
-      e.preventDefault();
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isLoading) return;
-
-      const scrollAmount = 40; // Scroll 50% of viewport height per key press
-      if (e.key === 'ArrowDown') {
-        targetScroll = Math.min(targetScroll + scrollAmount, document.body.scrollHeight - window.innerHeight);
-        e.preventDefault();
-      } else if (e.key === 'ArrowUp') {
-        targetScroll = Math.max(targetScroll - scrollAmount, 0);
-        e.preventDefault();
-      }
-    };
-
-    const animateScroll = () => {
-      if (Math.abs(targetScroll - currentScroll) > 0.5) {
-        currentScroll += (targetScroll - currentScroll) * ease;
-        window.scrollTo(0, currentScroll);
-      } else if (isWheel) {
-        currentScroll = targetScroll;
-        window.scrollTo(0, currentScroll);
-        isWheel = false;
-      }
-      requestAnimationFrame(animateScroll);
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('keydown', handleKeyDown); // Add keyboard listener
-    animateScroll();
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown); // Cleanup
-    };
-  }, [isLoading]);
-
-
   const heroScale = useTransform(heroScrollProgress, [0, 1], [1, 3])
   const heroTranslateZ = useTransform(heroScrollProgress, [0, 1], ["0px", "500px"])
   const heroRotateX = useTransform(heroScrollProgress, [0, 1], ["0deg", "10deg"])
@@ -225,6 +171,37 @@ export default function Portfolio() {
 
   return (
     <>
+      <style jsx global>{`
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+          background-color: transparent;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #091a2d, #e87500);
+          border-radius: 5px;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+          transition: background 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: #e87500;
+        }
+
+        /* For Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #e87500 transparent;
+        }
+      `}</style>
+
       <motion.div
         className="fixed z-50 pointer-events-none mix-blend-difference"
         animate={{
@@ -301,6 +278,7 @@ export default function Portfolio() {
             backdropFilter: navBackdropFilter,
             WebkitBackdropFilter: navBackdropFilter,
             pointerEvents: showNav ? 'auto' : 'none'
+            
           }}
           className="fixed top-0 left-0 right-0 z-40 bg-black/50 border-b border-white/10 transition-opacity"
         >
@@ -357,8 +335,6 @@ export default function Portfolio() {
           </div>
         </motion.nav>
 
-{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}
-
         <section ref={heroRef} className="relative h-[200vh] overflow-hidden z-0">
           {/* Background */}
           <motion.div
@@ -403,14 +379,14 @@ export default function Portfolio() {
           </motion.div>
         </section>
         
-      <motion.section 
-        id="about" 
-        className="py-32 px-6 relative z-10 bg-black"
-        style={{
-          opacity: aboutOpacity,
-          y: aboutY
-        }}
-      >
+        <motion.section 
+          id="about" 
+          className="py-32 px-6 relative z-10 bg-black"
+          style={{
+            opacity: aboutOpacity,
+            y: aboutY
+          }}
+        >
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
               <motion.div
@@ -426,15 +402,9 @@ export default function Portfolio() {
                     curiosity
                   </span>
                 </h2>
-
-                <motion.div
-                data-cursor-hover
-                >
-                  <p className="text-xl text-white/70 leading-relaxed mb-8">
-                    I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
-                  </p>
-                </motion.div>
-
+                <p className="text-xl text-white/70 leading-relaxed mb-8">
+                  I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
+                </p>
                 <div className="grid grid-cols-2 gap-8">
                   <motion.div 
                     whileHover={{ y: -10, scale: 1.05 }}
@@ -504,9 +474,8 @@ export default function Portfolio() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                   className="absolute -bottom-6 -left-6 bg-[#e87500] text-white px-4 py-2 rounded-full shadow-lg"
-                  data-cursor-hover
                 >
-                  <span className="font-normal text-xl">UT Dallas '29</span>
+                  <span className="font-normal text-lg">UT Dallas '29</span>
                 </motion.div>
                 
                 <motion.div 
@@ -514,9 +483,8 @@ export default function Portfolio() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                   className="absolute -top-6 -right-6 bg-[#081A49] text-white px-4 py-2 rounded-full shadow-lg"
-                  data-cursor-hover
                 >
-                  <span className="font-normal text-xl">RHS '25</span>
+                  <span className="font-normal text-lg">RHS '25</span>
                 </motion.div>
               </motion.div>
             </div>
@@ -535,15 +503,9 @@ export default function Portfolio() {
               <h2 className="text-5xl md:text-6xl font-light mb-6 tracking-tight">
                 Selected <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Work</span>
               </h2>
-
-              <motion.div
-              data-cursor-hover
-              >
               <p className="text-xl text-white/60 max-w-2xl mx-auto">
                 A collection of projects that showcase my passion for creating meaningful digital experiences
               </p>
-              </motion.div>
-
             </motion.div>
 
             <div className="space-y-32">
@@ -569,13 +531,7 @@ export default function Portfolio() {
                       <h3 className="text-4xl md:text-5xl font-light mb-6 tracking-tight group-hover:text-white/80 transition-colors">
                         {project.title}
                       </h3>
-
-                      <motion.div
-                      data-cursor-hover
-                      >
                       <p className="text-lg text-white/70 leading-relaxed mb-8">{project.description}</p>
-                      </motion.div>
-
                       <div className="flex flex-wrap gap-3 mb-8">
                         {project.tech.map((tech) => (
                           <motion.span
