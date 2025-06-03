@@ -373,7 +373,8 @@ export default function Portfolio() {
           <motion.div
             style={{ 
               scale: useTransform(heroScrollProgress, [0, .4, 1], [1, 6, 27]), // Increased from 2.5 to 10
-              x: useTransform(heroScrollProgress, [0, 1], ["0%", "1.7%"]), // Added downward movement
+              x: useTransform(heroScrollProgress, [0, .7, 1], ["0%", "1.1%", "18.5%"]),
+              scaleX: useTransform(heroScrollProgress, [.7, 1], [1, 10]),
             }}
             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full text-center origin-center"
           >
@@ -425,9 +426,15 @@ export default function Portfolio() {
                     curiosity
                   </span>
                 </h2>
-                <p className="text-xl text-white/70 leading-relaxed mb-8">
-                  I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
-                </p>
+
+                <motion.div
+                data-cursor-hover
+                >
+                  <p className="text-xl text-white/70 leading-relaxed mb-8">
+                    I'm a Computer Science student at The University of Texas at Dallas, passionate about creating technology that makes a difference. My work spans from machine learning research to full-stack development, always with a focus on user experience and innovation.
+                  </p>
+                </motion.div>
+
                 <div className="grid grid-cols-2 gap-8">
                   <motion.div 
                     whileHover={{ y: -10, scale: 1.05 }}
@@ -497,8 +504,9 @@ export default function Portfolio() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                   className="absolute -bottom-6 -left-6 bg-[#e87500] text-white px-4 py-2 rounded-full shadow-lg"
+                  data-cursor-hover
                 >
-                  <span className="font-normal text-lg">UT Dallas '29</span>
+                  <span className="font-normal text-xl">UT Dallas '29</span>
                 </motion.div>
                 
                 <motion.div 
@@ -506,8 +514,9 @@ export default function Portfolio() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                   className="absolute -top-6 -right-6 bg-[#081A49] text-white px-4 py-2 rounded-full shadow-lg"
+                  data-cursor-hover
                 >
-                  <span className="font-normal text-lg">RHS '25</span>
+                  <span className="font-normal text-xl">RHS '25</span>
                 </motion.div>
               </motion.div>
             </div>
@@ -526,9 +535,15 @@ export default function Portfolio() {
               <h2 className="text-5xl md:text-6xl font-light mb-6 tracking-tight">
                 Selected <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Work</span>
               </h2>
+
+              <motion.div
+              data-cursor-hover
+              >
               <p className="text-xl text-white/60 max-w-2xl mx-auto">
                 A collection of projects that showcase my passion for creating meaningful digital experiences
               </p>
+              </motion.div>
+
             </motion.div>
 
             <div className="space-y-32">
@@ -554,7 +569,13 @@ export default function Portfolio() {
                       <h3 className="text-4xl md:text-5xl font-light mb-6 tracking-tight group-hover:text-white/80 transition-colors">
                         {project.title}
                       </h3>
+
+                      <motion.div
+                      data-cursor-hover
+                      >
                       <p className="text-lg text-white/70 leading-relaxed mb-8">{project.description}</p>
+                      </motion.div>
+
                       <div className="flex flex-wrap gap-3 mb-8">
                         {project.tech.map((tech) => (
                           <motion.span
