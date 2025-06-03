@@ -139,7 +139,7 @@ export default function Portfolio() {
   const navBgBlur = useTransform(scrollYProgress, [0, 0.005], [0, 12])
   const navBackdropFilter = useTransform(navBgBlur, (value) => `blur(${value}px)`)
 
-  const aboutOpacity = useTransform(scrollYProgress, [0.15, 0.25], [0, 1])
+  const aboutOpacity = useTransform(scrollYProgress, [0, .6], [.5, 1])
   const aboutY = useTransform(scrollYProgress, [0.15, 0.25], ["50px", "0px"])
 
   const projects = [
@@ -348,9 +348,10 @@ export default function Portfolio() {
           {/* Hero Content - Aggressive zoom that disappears */}
           <motion.div
             style={{ 
-              scale: useTransform(heroScrollProgress, [0, .4, 1], [1, 6, 27]), // Increased from 2.5 to 10
-              x: useTransform(heroScrollProgress, [0, .7, 1], ["0%", "1.1%", "18.5%"]),
-              scaleX: useTransform(heroScrollProgress, [.7, 1], [1, 10]),
+//              scale: useTransform(heroScrollProgress, [0, .3, 1], [1, 6, 45]), // Increased from 2.5 to 10
+//              transformOrigin: "51.5% 18%" // 👈 Custom zoom origin (x% y%)
+              scale: useTransform(heroScrollProgress, [0, .3, .9], [1, 6, 35]), // Increased from 2.5 to 10
+              transformOrigin: "48.12% 25%" // 👈 Custom zoom origin (x% y%)
             }}
             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full text-center origin-center"
           >
