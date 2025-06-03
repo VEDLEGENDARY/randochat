@@ -349,7 +349,7 @@ export default function Portfolio() {
               scale: heroBgScale,
               opacity: useTransform(heroScrollProgress, [0, .6, 1], [1, .5, 0]),
             }}
-            className="absolute inset-0 bg-gradient-to-b from-blue-200 via-blue-500 to-blue-800"
+            className="absolute inset-0 bg-gradient-to-b from-[#e87500] via-[#091a2d] to-[#091a2d]"
           />
 
           {/* Hero Content - Aggressive zoom that disappears */}
@@ -413,7 +413,8 @@ export default function Portfolio() {
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                   <motion.div 
-                    whileHover={{ y: -5 }}
+                    whileHover={{ y: -10, scale: 1.05 }}
+                    initial={{ scale: 1 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
                     data-cursor-hover
                   >
@@ -421,7 +422,8 @@ export default function Portfolio() {
                     <p className="text-white/60">React, Next.js, TypeScript</p>
                   </motion.div>
                   <motion.div 
-                    whileHover={{ y: -5 }}
+                    whileHover={{ y: -10, scale: 1.05 }}
+                    initial={{ scale: 1 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
                     data-cursor-hover
                   >
@@ -429,7 +431,8 @@ export default function Portfolio() {
                     <p className="text-white/60">Python, Node.js, PostgreSQL</p>
                   </motion.div>
                   <motion.div 
-                    whileHover={{ y: -5 }}
+                    whileHover={{ y: -10, scale: 1.05 }}
+                    initial={{ scale: 1 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
                     data-cursor-hover
                   >
@@ -437,7 +440,8 @@ export default function Portfolio() {
                     <p className="text-white/60">TensorFlow, PyTorch, OpenAI</p>
                   </motion.div>
                   <motion.div 
-                    whileHover={{ y: -5 }}
+                    whileHover={{ y: -10, scale: 1.05 }}
+                    initial={{ scale: 1 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10"
                     data-cursor-hover
                   >
@@ -446,42 +450,47 @@ export default function Portfolio() {
                   </motion.div>
                 </div>
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ type: "spring", damping: 25, stiffness: 100 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="relative"
-              >
-                <div className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-3xl p-8 backdrop-blur-sm border border-white/10 overflow-hidden">
-                  <Image
-                    src="/ved-patel.jpg"
-                    alt="Ved Patel"
-                    width={400}
-                    height={400}
-                    className="w-full h-full object-cover rounded-2xl"
-                  />
+
+              <motion.div className="relative">
+                <div 
+                  className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-3xl p-8 border border-white/10 overflow-hidden"
+                  data-cursor-hover
+                >
+                  <motion.div
+                    initial={{ scale: 1 }}
+                    whileHover={{ scale: 1.13 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="w-full h-full"
+                  >
+                    <Image
+                      src="/self-portrait.jpg"
+                      alt="Ved Patel"
+                      width={400}
+                      height={400}
+                      className="w-full h-full object-cover rounded-2xl z-1"
+                    />
+                  </motion.div>
                   <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{
                     boxShadow: "inset 0 0 60px rgba(255, 255, 255, 0.1)"
                   }}></div>
                 </div>
-                
+
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="absolute -bottom-6 -left-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg"
+                  className="absolute -bottom-6 -left-6 bg-[#e87500] text-white px-4 py-2 rounded-full shadow-lg"
                 >
-                  <span className="font-medium">UT Dallas '25</span>
+                  <span className="font-normal text-lg">UT Dallas '29</span>
                 </motion.div>
                 
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className="absolute -top-6 -right-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-2 rounded-full shadow-lg"
+                  className="absolute -top-6 -right-6 bg-[#081A49] text-white px-4 py-2 rounded-full shadow-lg"
                 >
-                  <span className="font-medium">CS Honors</span>
+                  <span className="font-normal text-lg">RHS '25</span>
                 </motion.div>
               </motion.div>
             </div>
