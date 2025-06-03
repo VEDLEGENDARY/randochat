@@ -168,7 +168,7 @@ export default function Portfolio() {
   const heroScale = useTransform(heroScrollProgress, [0, 1], [1, 3])
   const heroTranslateZ = useTransform(heroScrollProgress, [0, 1], ["0px", "500px"])
   const heroRotateX = useTransform(heroScrollProgress, [0, 1], ["0deg", "10deg"])
-  const heroTextOpacity = useTransform(heroScrollProgress, [0, 0.6], [1, 1])
+  const heroTextOpacity = useTransform(heroScrollProgress, [0, 0.6, 0.8], [1, 1, 0]);
   const heroTextScale = useTransform(heroScrollProgress, [0, 1], [1, 2.5])
   const heroTextY = useTransform(heroScrollProgress, [0, 1], ["0%", "20%"])
   const heroBgScale = useTransform(heroScrollProgress, [0, 1], [1, 1.5])
@@ -354,94 +354,59 @@ export default function Portfolio() {
           </div>
         </motion.nav>
 
-        <section ref={heroRef} className="relative h-[200vh] flex items-center justify-center overflow-hidden">
+{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}{/* Hero Section */}
+
+        <section ref={heroRef} className="relative h-[200vh] overflow-hidden z-0">
+          {/* Background */}
           <motion.div
             style={{
               scale: heroBgScale,
+              opacity: useTransform(heroScrollProgress, [0, .6, 1], [1, .5, 0]),
             }}
-            className="absolute inset-0 bg-gradient-to-b from-blue-900 via-blue-800 to-purple-900"
+            className="absolute inset-0 bg-gradient-to-b from-blue-200 via-blue-500 to-blue-800"
           />
 
+          {/* Hero Content - Aggressive zoom that disappears */}
           <motion.div
-            style={{
-              scale: heroScale,
-              translateZ: heroTranslateZ,
-              rotateX: heroRotateX,
-              transformStyle: 'preserve-3d',
-              perspective: '1000px'
+            style={{ 
+              scale: useTransform(heroScrollProgress, [0, .5, 1], [1, 7, 25]), // Increased from 2.5 to 10
+              y: useTransform(heroScrollProgress, [0, 1], ["0%", "20%"]), // Added downward movement
             }}
-            className="w-full h-full absolute inset-0 flex items-center justify-center"
-          />
-
-          {/* Fixed Center Content */}
-          <motion.div 
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 max-w-5xl w-full px-6 text-center"
-            style={{
-              opacity: heroTextOpacity,
-              scale: heroTextScale,
-            }}
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full text-center origin-center"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ 
-                type: "spring",
-                damping: 20,
-                stiffness: 100,
-                delay: 0.33,
-              }}
-              className="mb-8"
-            >
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-6">
+            <motion.div className="mb-8">
+              <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-light tracking-tight mb-6">
                 Ved Patel
               </h1>
-              <div className="w-4/5 h-px bg-gradient-to-r from-transparent via-white to-transparent mx-auto mb-8"></div>
-              <p className="text-xl md:text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl font-light text-white/80 mx-auto leading-relaxed">
                 Computer Science Student @ UT Dallas '25
               </p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", damping: 20, stiffness: 100, delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                data-cursor-hover
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-3 rounded-full">
+                View My Work
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/30 text-black hover:bg-white/10 px-8 py-3 rounded-full"
               >
-                <Button size="lg" className="bg-white text-black hover:bg-white/90 px-8 py-3 rounded-full">
-                  View My Work
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                data-cursor-hover
-              >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/30 text-black hover:bg-white/10 px-8 py-3 rounded-full"
-                >
-                  Get In Touch
-                </Button>
-              </motion.div>
-            </motion.div>
+                Get In Touch
+              </Button>
+            </div>
           </motion.div>
         </section>
-
-        <motion.section 
-          id="about" 
-          className="py-32 px-6 relative"
-          style={{
-            opacity: aboutOpacity,
-            y: aboutY
-          }}
-        >
+        
+      <motion.section 
+        id="about" 
+        className="py-32 px-6 relative z-10 bg-black"
+        style={{
+          opacity: aboutOpacity,
+          y: aboutY
+        }}
+      >
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
               <motion.div
