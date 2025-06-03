@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect, useState } from "react"
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent } from "framer-motion"
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValueEvent, px } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Github, Linkedin, Mail, ExternalLink, ArrowRight, Download } from "lucide-react"
@@ -128,41 +128,57 @@ export default function Portfolio() {
   }, [])
 
   useEffect(() => {
-    let isWheel = false
-    let targetScroll = window.scrollY
-    let currentScroll = window.scrollY
-    let ease = 0.2
-    
+    let isWheel = false;
+    let targetScroll = window.scrollY;
+    let currentScroll = window.scrollY;
+    const ease = 0.2;
+
     const handleWheel = (e: WheelEvent) => {
       if (isLoading) {
-        e.preventDefault()
-        return
+        e.preventDefault();
+        return;
       }
-      isWheel = true
-      targetScroll += e.deltaY * 1.2
-      targetScroll = Math.max(0, Math.min(targetScroll, document.body.scrollHeight - window.innerHeight))
-      e.preventDefault()
-    }
-    
+      isWheel = true;
+      targetScroll += e.deltaY * 1.2;
+      targetScroll = Math.max(0, Math.min(targetScroll, document.body.scrollHeight - window.innerHeight));
+      e.preventDefault();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isLoading) return;
+
+      const scrollAmount = 40; // Scroll 50% of viewport height per key press
+      if (e.key === 'ArrowDown') {
+        targetScroll = Math.min(targetScroll + scrollAmount, document.body.scrollHeight - window.innerHeight);
+        e.preventDefault();
+      } else if (e.key === 'ArrowUp') {
+        targetScroll = Math.max(targetScroll - scrollAmount, 0);
+        e.preventDefault();
+      }
+    };
+
     const animateScroll = () => {
       if (Math.abs(targetScroll - currentScroll) > 0.5) {
-        currentScroll += (targetScroll - currentScroll) * ease
-        window.scrollTo(0, currentScroll)
+        currentScroll += (targetScroll - currentScroll) * ease;
+        window.scrollTo(0, currentScroll);
       } else if (isWheel) {
-        currentScroll = targetScroll
-        window.scrollTo(0, currentScroll)
-        isWheel = false
+        currentScroll = targetScroll;
+        window.scrollTo(0, currentScroll);
+        isWheel = false;
       }
-      requestAnimationFrame(animateScroll)
-    }
-    
-    window.addEventListener('wheel', handleWheel, { passive: false })
-    animateScroll()
-    
+      requestAnimationFrame(animateScroll);
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('keydown', handleKeyDown); // Add keyboard listener
+    animateScroll();
+
     return () => {
-      window.removeEventListener('wheel', handleWheel)
-    }
-  }, [isLoading])
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown); // Cleanup
+    };
+  }, [isLoading]);
+
 
   const heroScale = useTransform(heroScrollProgress, [0, 1], [1, 3])
   const heroTranslateZ = useTransform(heroScrollProgress, [0, 1], ["0px", "500px"])
