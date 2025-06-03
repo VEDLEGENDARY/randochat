@@ -76,7 +76,6 @@ export default function Portfolio() {
     const timer4 = setTimeout(() => setPreloaderStage(4), 2000)
     const timer5 = setTimeout(() => {
       setIsLoading(false)
-      document.body.style.overflow = 'auto'
     }, 2500)
     
     document.body.style.overflow = 'hidden'
@@ -95,7 +94,7 @@ export default function Portfolio() {
     let targetY = 0
     let currentX = 0
     let currentY = 0
-    let ease = 0.2
+    let ease = .2
     
     const moveCursor = (e: MouseEvent) => {
       targetX = e.clientX
@@ -112,8 +111,8 @@ export default function Portfolio() {
     }
     
     const animateCursor = () => {
-      currentX += (targetX - currentX) * ease
-      currentY += (targetY - currentY) * ease
+      currentX += (targetX - currentX) * ease * 5
+      currentY += (targetY - currentY) * ease * 5
       setCursorPosition({ x: currentX, y: currentY })
       requestAnimationFrame(animateCursor)
     }
@@ -173,7 +172,7 @@ export default function Portfolio() {
   const heroTextY = useTransform(heroScrollProgress, [0, 1], ["0%", "20%"])
   const heroBgScale = useTransform(heroScrollProgress, [0, 1], [1, 1.5])
 
-  const navBgOpacity = useTransform(scrollYProgress, [0.05, 0.1], [0, 1])
+  const navBgOpacity = useTransform(scrollYProgress, [.01, .06], [0, 1])
   const navBgBlur = useTransform(scrollYProgress, [0.05, 0.1], [0, 12])
   const navBackdropFilter = useTransform(navBgBlur, (value) => `blur(${value}px)`)
 
@@ -233,7 +232,6 @@ export default function Portfolio() {
               transition: { 
                 duration: 0.8, 
                 ease: [0.22, 1, 0.36, 1],
-                filter: 'url(#noise) blur(10px)'
               } 
             }}
             className="fixed inset-0 z-50 bg-white flex flex-col"
@@ -246,42 +244,30 @@ export default function Portfolio() {
             </svg>
 
             <motion.div 
-              className="h-1/3 bg-black relative"
+              className="h-1/3 bg-blue-200 relative"
               initial={{ x: "-100%" }}
               animate={{ 
                 x: preloaderStage >= 2 ? "0%" : "-100%",
-                transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] }
+                transition: { duration:.8, ease: [0.65, 0, 0.35, 1] }
               }}
             />
             
             <motion.div 
-              className="h-1/3 bg-black relative"
+              className="h-1/3 bg-blue-300 relative"
               initial={{ x: "100%" }}
               animate={{ 
                 x: preloaderStage >= 2 ? "0%" : "100%",
-                transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] }
+                transition: { duration: 1.2, ease: [0.65, 0, 0.35, 1] }
               }}
             >
-              {preloaderStage >= 3 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <h1 className="text-8xl font-bold tracking-tighter text-white">
-                    Ved Patel
-                  </h1>
-                </motion.div>
-              )}
             </motion.div>
             
             <motion.div 
-              className="h-1/3 bg-black relative"
+              className="h-1/3 bg-blue-400 relative"
               initial={{ x: "-100%" }}
               animate={{ 
                 x: preloaderStage >= 2 ? "0%" : "-100%",
-                transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] }
+                transition: { duration: 0.4, ease: [0.65, 0, 0.35, 1] }
               }}
             />
           </motion.div>
@@ -301,7 +287,7 @@ export default function Portfolio() {
           }}
           className="fixed top-0 left-0 right-0 z-40 bg-black/50 border-b border-white/10 transition-opacity"
         >
-          <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="max-w-7xl mx-auto px-6 py-4 opacity-15">
             <div className="flex items-center justify-between">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -369,8 +355,8 @@ export default function Portfolio() {
           {/* Hero Content - Aggressive zoom that disappears */}
           <motion.div
             style={{ 
-              scale: useTransform(heroScrollProgress, [0, .5, 1], [1, 7, 25]), // Increased from 2.5 to 10
-              y: useTransform(heroScrollProgress, [0, 1], ["0%", "20%"]), // Added downward movement
+              scale: useTransform(heroScrollProgress, [0, .4, 1], [1, 6, 27]), // Increased from 2.5 to 10
+              x: useTransform(heroScrollProgress, [0, 1], ["0%", "1.7%"]), // Added downward movement
             }}
             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full text-center origin-center"
           >
