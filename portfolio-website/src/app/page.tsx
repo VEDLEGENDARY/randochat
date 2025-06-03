@@ -287,7 +287,7 @@ export default function Portfolio() {
           }}
           className="fixed top-0 left-0 right-0 z-40 bg-black/50 border-b border-white/10 transition-opacity"
         >
-          <div className="max-w-7xl mx-auto px-6 py-4 opacity-15">
+          <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
