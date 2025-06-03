@@ -349,14 +349,13 @@ export default function Portfolio() {
               scale: heroBgScale,
               opacity: useTransform(heroScrollProgress, [0, .6, 1], [1, .5, 0]),
             }}
-            className="absolute inset-0 bg-gradient-to-b from-blue-200 via-blue-500 to-blue-800"
+            className="absolute inset-0 bg-gradient-to-b bg- from-blue-200 from-0% via-blue-500 to-blue-800"
           />
 
           {/* Hero Content - Aggressive zoom that disappears */}
           <motion.div
             style={{ 
-              scale: useTransform(heroScrollProgress, [0, .4, 1], [1, 6, 27]), // Increased from 2.5 to 10
-              x: useTransform(heroScrollProgress, [0, 1], ["0%", "1.7%"]), // Added downward movement
+              scale: useTransform(heroScrollProgress, [0, .5], [1, 2]), // Increased from 2.5 to 10
             }}
             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full text-center origin-center"
           >
