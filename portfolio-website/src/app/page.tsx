@@ -348,10 +348,8 @@ export default function Portfolio() {
           {/* Hero Content - Aggressive zoom that disappears */}
           <motion.div
             style={{ 
-//              scale: useTransform(heroScrollProgress, [0, .3, 1], [1, 6, 45]), // Increased from 2.5 to 10
-//              transformOrigin: "51.5% 18%" // 👈 Custom zoom origin (x% y%)
-              scale: useTransform(heroScrollProgress, [0, .3, .9], [1, 6, 35]), // Increased from 2.5 to 10
-              transformOrigin: "48.12% 25%" // 👈 Custom zoom origin (x% y%)
+              scale: useTransform(heroScrollProgress, [0, .3, .9, 1], [1, 6, 35, 50]), // Increased from 2.5 to 10
+              transformOrigin: "47.875vw 4vw"
             }}
             className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-full text-center origin-center"
           >
